@@ -7,12 +7,13 @@ if (!process.env.JWT_SECRET) {
 }
 
 const signupUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password,role } = req.body;
 
   const { data, error } = await supabase.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
+    user_metadata: { role: role || "user" },
   });
 
   if (error) return res.status(400).json({ error: error.message });
@@ -28,15 +29,16 @@ const loginUser = async (req, res) => {
   });
 
   if (error) return res.status(400).json({ error: error.message });
-
+ 
+  const role = data.user.user_metadata?.role || "user";
   // generate custom JWt token
   const token = jwt.sign(
-    { id: data.user.id, email: data.user.email },
+    { id: data.user.id, email: data.user.email, role: role  },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
 
-  res.json({ message: "Login successful", user: data.user, token });
+  res.json({ message: "Login successful", user: data.user,role:role, token });
 };
 
 module.exports = { signupUser, loginUser };
