@@ -41,4 +41,52 @@ const loginUser = async (req, res) => {
   res.json({ message: "Login successful", user: data.user,role:role, token });
 };
 
-module.exports = { signupUser, loginUser };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: "http://localhost:5173/reset-password",
+  });
+
+  if (error) {
+    console.error("Forgot password error:", error.message);
+    return res.status(400).json({ error: error.message });
+  }
+
+  res.json({ message: "Password reset email sent successfully", data });
+};
+
+const resetPassword = async (req, res) => {
+  const { email, new_password } = req.body;
+
+  try {
+    const { data, error } = await supabase.auth.admin.listUsers({
+      filter: `email=eq.${email}`,
+    });
+
+    if (error) throw error;
+    if (!data || !data.users || data.users.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user_id = data.users[0].id;
+
+    const { data: updatedUser, error: updateError } = await supabase.auth.admin.updateUserById(user_id, {
+      password: new_password,
+    });
+
+    if (updateError) throw updateError;
+
+    res.json({ message: "Password reset successfully", user: updatedUser });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  signupUser,
+  loginUser,
+  forgotPassword,
+  resetPassword
+};
