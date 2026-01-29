@@ -15,6 +15,9 @@ let recruitmentRoutes;
 let onboardingRoutes;
 let candidatesRoutes;
 let jobOpeningRoutes;
+let inboundRoutes;
+
+
 
 
 try {
@@ -67,6 +70,16 @@ try {
 }
 
 
+try {
+  inboundRoutes = require("./src/routes/inboundRoutes.js");
+  console.log("✅ Inbound routes loaded successfully");
+} catch (err) {
+  console.error("❌ Error loading inbound routes:", err);
+}
+
+
+
+
 
 /* ✅ ✅ ✅ SUPABASE REALTIME LISTENER */
 supabase
@@ -98,6 +111,7 @@ console.log("candidatesRoutes:", typeof candidatesRoutes);
 
 
 /* ✅ Register routes ONLY if loaded */
+/* ERP / HR ROUTES (ROUTER STYLE) */
 if (authRoutes) app.use("/api", authRoutes);
 if (protectedRoutes) app.use("/api", protectedRoutes);
 if (attendanceRoutes) app.use("/api/attendance", attendanceRoutes);
@@ -105,6 +119,11 @@ if (recruitmentRoutes) app.use("/api/recruitment", recruitmentRoutes);
 if (onboardingRoutes) app.use("/api/onboarding", onboardingRoutes);
 if (candidatesRoutes) app.use("/api/candidates", candidatesRoutes);
 if (jobOpeningRoutes) app.use("/api/job-openings", jobOpeningRoutes);
+
+/* WAREHOUSE (ROUTER STYLE) */
+if (inboundRoutes) app.use("/api/inbound", inboundRoutes);
+
+console.log("InboundRoutes value:", inboundRoutes);
 
 
 
